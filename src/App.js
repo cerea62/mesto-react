@@ -8,30 +8,15 @@ import Input from './components/Input';
 import Button from './components/Button';
 import ImagePopup from './components/ImagePopup';
 
-function handleEditAvatarClick() {
-    const popupWithAvatar = document.querySelector('.popup_type_update-avatar');
-    popupWithAvatar.classList.add('popup_opened');
-
-}
-// function handleEditProfileClick() {
-
-//     const popupWithProfile = document.querySelector('.popup_type_edit-profile');
-//     popupWithProfile.classList.add('popup_opened');
-
-// }
-// function handleAddPlaceClick() {
-//     const popupWithProfile = document.querySelector('.popup_type_new-card');
-//     popupWithProfile.classList.add('popup_opened');
-
-// }
-
 function App() {
+
     const [changeInput, setChangeInput] = useState(" ");
 
-    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false); //открытие попапа Редактирование профиля
-    const handleEditProfileClick = function () {
+    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false); 
+    const handleEditProfileClick = function () { //открытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(true);
     }
+
     const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false); //открытие попапа Редактирование профиля
     const handleAddPlaceClick = function () {
         setIsAddPlacePopupOpen(true);
@@ -41,6 +26,11 @@ function App() {
         setIsEditAvatarPopupOpen(true);
     }
 
+    const handleButtonClosePopup = function() { //закрытие попапа Редактирование профиля
+        setIsEditProfilePopupOpen(false);
+        setIsAddPlacePopupOpen(false);
+        setIsEditAvatarPopupOpen(false);
+    }
     const handleInputChange = function (e) {
         setChangeInput(e.target.value)
     }
@@ -76,6 +66,8 @@ function App() {
                         title="Редактировать профиль"
                         name="edit-profile"
                         isActive={isEditProfilePopupOpen}
+                        onClick={handleButtonClosePopup}
+                        // onClose={handleButtonClosePopup}
                         // onSubmit={handleFormSubmit}
                     >
                         <Input
@@ -105,6 +97,7 @@ function App() {
                         title="Новое место"
                         name="new-card"
                         isActive={isAddPlacePopupOpen}
+                        onClick={handleButtonClosePopup}
                     >
                         <Input
                             type="text"
@@ -132,6 +125,7 @@ function App() {
                         title="Обновить аватар"
                         name="update-avatar"
                         isActive={isEditAvatarPopupOpen}
+                        onClick={handleButtonClosePopup}
                     >
                         <Input
                             type="url"
