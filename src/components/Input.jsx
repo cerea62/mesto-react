@@ -12,8 +12,8 @@ export default function Input({type, placeholder, name, id, className, children,
                 src={children}
                 onChange ={onChange}
                 value={value}
-                minlength="2"
-                maxlength="30"
+                // minlength="2"
+                // maxlength="30"
                 required />
             <span id={`${id}-error`} className="form__error"></span>
         </>

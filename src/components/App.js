@@ -1,18 +1,65 @@
-import './index.css'
+import '../index.css'
 import { useEffect, useState } from "react";
-import Header from './components/Header';
-import Main from './components/Main';
-import Footer from './components/Footer';
-import PopupWithForm from './components/PopupWithForm';
-import Input from './components/Input';
-import Button from './components/Button';
-import ImagePopup from './components/ImagePopup';
+import Header from './Header';
+import Main from './Main';
+import Footer from './Footer';
+import PopupWithForm from './PopupWithForm';
+import Input from './Input';
+import Button from './Button';
+import ImagePopup from './ImagePopup';
+import api from '../utils/Api';
+import profileAvatar from '../image/cousteau.jpg';
+import Card from './Card';
+
+const mapCards = (cards) => {
+    return cards.map((item) => ({
+        key: item._id,
+        link: item.link,
+        name: item.name,
+        likes: item.likes.length
+    }));
+};
 
 function App() {
+    
+    const [userName, setUserName] = useState("Жак Ив Кусто");
+    const [userDescription, setUserDescription] = useState("Исследователь океана");
+    const [userAvatar, setUserAvatar] = useState(profileAvatar);
+    const [cards, setCards] = useState([]);
 
-    const [changeInput, setChangeInput] = useState(" ");
+    useEffect(() => {
+        handleRequest();
+      }, []);
+    
+      useEffect(() => {
+      api
+        .getUserInfo().then(res => {
+            setUserName(res.name);
+            setUserDescription(res.about);
+            setUserAvatar(res.avatar);
+        } )
+        .catch((err) => {
+            console.log(err);
+          })
+         }, []);
 
-    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false); 
+    const handleRequest = function () {
+        api.getCards()
+        .then((res) => {
+            setCards(mapCards(res));
+        })
+        .catch((err) => {
+            console.log(err);
+          })
+    }
+    
+    const [selectedCard, setSelectedCard] = useState(false);
+
+    const handleCardClick = function(e) {
+        setSelectedCard(e.target);
+    }
+
+    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
     const handleEditProfileClick = function () { //открытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(true);
     }
@@ -21,22 +68,21 @@ function App() {
     const handleAddPlaceClick = function () {
         setIsAddPlacePopupOpen(true);
     }
-    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false); //открытие попапа Редактирование профиля
+    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false); //открытие попапа Редактирование аватара
     const handleEditAvatarClick = function () {
         setIsEditAvatarPopupOpen(true);
     }
-
-    const handleButtonClosePopup = function() { //закрытие попапа Редактирование профиля
+    const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
+    const handleDeleteCardClick = function () {
+        setIsDeleteCardPopupOpen(true);
+    }
+    const closeAllPopups = function () { //закрытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(false);
         setIsAddPlacePopupOpen(false);
         setIsEditAvatarPopupOpen(false);
+        setSelectedCard(false);
     }
-    const handleInputChange = function (e) {
-        setChangeInput(e.target.value)
-    }
-    // const handleFormSubmit = function (e) {
-    //     e.prevent.default;
-    // }
+
     return (
         <>
             <div className="content">
@@ -45,30 +91,29 @@ function App() {
                     <Main
                         onEditProfile={handleEditProfileClick}
                         onAddPlace={handleAddPlaceClick}
-                        onEditAvatar={handleEditAvatarClick} />
+                        onEditAvatar={handleEditAvatarClick}
+                        userName={userName}
+                        userDescription={userDescription}
+                        userAvatar={userAvatar}
+                        children=                        
+                        {cards.map((cardData) => (
+                            <Card
+                                key={cardData.key}                            
+                                link={cardData.link}
+                                name={cardData.name}
+                                cardData={cardData}
+                                likes={cardData.likes}
+                                onCardClick={handleCardClick}
+                            />)
+                            )}
+                    />
                     <Footer />
-                    {/* <template id="card-template">
-                        <li className="card">
-                            <button type="button" className="card__trash"></button>
-                            <img className="card__image" src="#" alt="#" />
-                            <div className="card__caption">
-                                <h2 className="card__title"></h2>
-                                <div className="card__like">
-                                    <button type="button" className="card__icon" aria-label="Иконка-сердечко"
-                                        title="Добавить в избранное"></button>
-                                    <span className="card__like-counter"></span>
-                                </div>
-                            </div>
-                        </li>
-                    </template> */}
 
                     <PopupWithForm //попап редактирования профиля
                         title="Редактировать профиль"
                         name="edit-profile"
                         isActive={isEditProfilePopupOpen}
-                        onClick={handleButtonClosePopup}
-                        // onClose={handleButtonClosePopup}
-                        // onSubmit={handleFormSubmit}
+                        onClose={closeAllPopups}
                     >
                         <Input
                             type="text"
@@ -76,10 +121,8 @@ function App() {
                             name="name"
                             id="name"
                             className="type_name"
-                            onChange={handleInputChange}
-                            value={changeInput}>
+                            >
                         </Input>
-
                         <Input
                             type="text"
                             placeholder="О себе"
@@ -97,7 +140,7 @@ function App() {
                         title="Новое место"
                         name="new-card"
                         isActive={isAddPlacePopupOpen}
-                        onClick={handleButtonClosePopup}
+                        onClose={closeAllPopups}
                     >
                         <Input
                             type="text"
@@ -118,14 +161,13 @@ function App() {
                             type="submit"
                             text="Сохранить">
                         </Button>
-
                     </PopupWithForm>
 
                     <PopupWithForm //Попап с редактированием аватара
                         title="Обновить аватар"
                         name="update-avatar"
                         isActive={isEditAvatarPopupOpen}
-                        onClick={handleButtonClosePopup}
+                        onClose={closeAllPopups}
                     >
                         <Input
                             type="url"
@@ -141,12 +183,17 @@ function App() {
                     <PopupWithForm //попап удаления карточки
                         title="Вы уверены?"
                         name="del-card"
+                        isActive={isDeleteCardPopupOpen}
+                        onClose={closeAllPopups}
                     >
                         <Button
                             type="submit"
                             text="Да"></Button>
                     </PopupWithForm>
-                    <ImagePopup />
+                    <ImagePopup
+                    selectedCard={selectedCard}
+                    onClose={closeAllPopups}
+                     />
                 </div>
             </div>
         </>
