@@ -1,10 +1,9 @@
 import React from 'react'
-import '../index.css'
 
-export default function ImagePopup({ selectedCard, onClose }) {
-  const popupOpened = `${selectedCard ? 'popup_opened' : ' '}`;
-  const srcImage = selectedCard.src;
-  const altImage = selectedCard.alt;
+export default function ImagePopup({ card, onClose }) {
+  const popupOpened = `${Object.keys(card).length !== 0 ? "popup_opened" : ""}`;
+  const srcImage = card.link;
+  const altImage = card.name;
   return (
     <div className={`popup popup_type_image ${popupOpened}`}>
       <div className="popup__img">

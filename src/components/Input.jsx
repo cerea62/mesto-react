@@ -1,5 +1,4 @@
 import React from 'react'
-import '../index.css'
 
 export default function Input({type, placeholder, name, id, className, children, onChange, value}) {
     return (

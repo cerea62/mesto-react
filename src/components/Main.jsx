@@ -1,6 +1,4 @@
 import React from 'react';
-import '../index.css'
-
 
 export default function Main({ onEditProfile, onAddPlace, onEditAvatar, userName, userDescription, userAvatar, children }) {
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import headerLogo from '../image/logo.svg';
-import '../index.css'
 
 export default function Header() {
   return (
