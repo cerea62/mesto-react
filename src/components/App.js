@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -6,20 +6,11 @@ import PopupWithForm from './PopupWithForm';
 import Input from './Input';
 import ImagePopup from './ImagePopup';
 import api from '../utils/Api';
+import EditProfilePopup from "./EditProfilePopup";
+import EditAvatarPopup from "./EditAvatarPopup";
 
 import Card from './Card';
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
-
-// const mapCards = (cards) => {
-//     return cards.map((item) => ({
-//         card: item
-//         // key: item._id,
-//         // link: item.link,
-//         // name: item.name,
-//         // likes: item.likes.length,
-//         // _id: item._id
-//     }));
-// };
 
 function App() {
 
@@ -58,19 +49,39 @@ function App() {
     function handleCardLike(card) {
         // Снова проверяем, есть ли уже лайк на этой карточке
         const isLiked = card.likes.some(i => i._id === currentUser._id);
-        
+
         // Отправляем запрос в API и получаем обновлённые данные карточки
         api.changeLike(card._id, isLiked).then((newCard) => {
             setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
         });
     }
 
-function handleCardDelete(card) {
-    api.deleteCard(card._id).then(() => {
-        setCards((state) => state.filter((item) => item !== card))
-    })
-}
+    function handleCardDelete(card) {
+        api.deleteCard(card._id).then(() => {
+            setCards((state) => state.filter((item) => item !== card))
+        })
+    }
 
+    function handleUpdateUser(data) {
+        api.editUserInfo(data)
+            .then((profileData) => {
+                setCurrentUser(profileData);
+                closeAllPopups()
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+    function handleUpdateAvatar(data) {
+        api.editAvatar(data)
+        .then((data) => {
+            setCurrentUser(data);
+            closeAllPopups()
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
     const handleEditProfileClick = function () { //открытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(true);
@@ -85,9 +96,9 @@ function handleCardDelete(card) {
         setIsEditAvatarPopupOpen(true);
     }
     const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
-    const handleDeleteCardClick = function () {
-        setIsDeleteCardPopupOpen(true);
-    }
+    // const handleDeleteCardClick = function () {
+    //     setIsDeleteCardPopupOpen(true);
+    // }
     const closeAllPopups = function () { //закрытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(false);
         setIsAddPlacePopupOpen(false);
@@ -121,29 +132,10 @@ function handleCardDelete(card) {
                     />
                     <Footer />
 
-                    <PopupWithForm //попап редактирования профиля
-                        title="Редактировать профиль"
-                        name="edit-profile"
-                        isActive={isEditProfilePopupOpen}
+                    <EditProfilePopup
+                        isOpen={isEditProfilePopupOpen}
                         onClose={closeAllPopups}
-                        button="Сохранить"
-                    >
-                        <Input
-                            type="text"
-                            placeholder="Имя"
-                            name="name"
-                            id="name"
-                            className="type_name"
-                        >
-                        </Input>
-                        <Input
-                            type="text"
-                            placeholder="О себе"
-                            name="about"
-                            id="about"
-                            className="type_about">
-                        </Input>
-                    </PopupWithForm>
+                        onUpdateUser={handleUpdateUser} />
 
                     <PopupWithForm //попап Новое место
                         title="Новое место"
@@ -169,21 +161,11 @@ function handleCardDelete(card) {
                         </Input>
                     </PopupWithForm>
 
-                    <PopupWithForm //Попап с редактированием аватара
-                        title="Обновить аватар"
-                        name="update-avatar"
-                        isActive={isEditAvatarPopupOpen}
-                        onClose={closeAllPopups}
-                        button="Да"
-                    >
-                        <Input
-                            type="url"
-                            placeholder="Ссылка на новый аватар"
-                            name="avatar"
-                            id="avatar"
-                            className="type_avatar"
-                            children=" "></Input>
-                    </PopupWithForm>
+                    <EditAvatarPopup 
+                    isOpen={isEditAvatarPopupOpen} 
+                    onClose={closeAllPopups}
+                    onUpdateAvatar={handleUpdateAvatar} />
+
                     <PopupWithForm //попап удаления карточки
                         title="Вы уверены?"
                         name="del-card"
