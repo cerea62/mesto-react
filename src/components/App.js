@@ -1,9 +1,8 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
-import Input from './Input';
 import ImagePopup from './ImagePopup';
 import api from '../utils/Api';
 import EditProfilePopup from "./EditProfilePopup";
@@ -11,11 +10,11 @@ import EditAvatarPopup from "./EditAvatarPopup";
 
 import Card from './Card';
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import AddPlacePopup from "./AddPlacePopup";
 
 function App() {
 
     const [cards, setCards] = useState([]);
-
     useEffect(() => {
         handleGetCards();
     }, []);
@@ -47,19 +46,21 @@ function App() {
     }
 
     function handleCardLike(card) {
-        // Снова проверяем, есть ли уже лайк на этой карточке
         const isLiked = card.likes.some(i => i._id === currentUser._id);
-
-        // Отправляем запрос в API и получаем обновлённые данные карточки
-        api.changeLike(card._id, isLiked).then((newCard) => {
-            setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-        });
+        api.changeLike(card._id, isLiked)
+            .then((newCard) => {
+                setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+            });
     }
 
     function handleCardDelete(card) {
-        api.deleteCard(card._id).then(() => {
-            setCards((state) => state.filter((item) => item !== card))
-        })
+        api.deleteCard(card._id)
+            .then(() => {
+                setCards((state) => state.filter((item) => item !== card))
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     function handleUpdateUser(data) {
@@ -74,14 +75,26 @@ function App() {
     }
     function handleUpdateAvatar(data) {
         api.editAvatar(data)
-        .then((data) => {
-            setCurrentUser(data);
-            closeAllPopups()
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+            .then((data) => {
+                setCurrentUser(data);
+                closeAllPopups()
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
+    function handleAddPlace(card) {
+        api.addCard(card)
+            .then((newCard) => {
+                setCards([newCard, ...cards]);
+                closeAllPopups();
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
+
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
     const handleEditProfileClick = function () { //открытие попапа Редактирование профиля
         setIsEditProfilePopupOpen(true);
@@ -137,34 +150,16 @@ function App() {
                         onClose={closeAllPopups}
                         onUpdateUser={handleUpdateUser} />
 
-                    <PopupWithForm //попап Новое место
-                        title="Новое место"
-                        name="new-card"
-                        isActive={isAddPlacePopupOpen}
+                    <AddPlacePopup
+                        isOpen={isAddPlacePopupOpen}
                         onClose={closeAllPopups}
-                        button="Сохранить"
-                    >
-                        <Input
-                            type="text"
-                            placeholder="Название"
-                            name="name"
-                            id="place"
-                            className="type_place">
-                        </Input>
-                        <Input
-                            type="url"
-                            placeholder="Ссылка на картинку"
-                            name="link"
-                            id="link"
-                            className="type_link"
-                            children=" ">
-                        </Input>
-                    </PopupWithForm>
+                        onAddPlace={handleAddPlace}
+                    />
 
-                    <EditAvatarPopup 
-                    isOpen={isEditAvatarPopupOpen} 
-                    onClose={closeAllPopups}
-                    onUpdateAvatar={handleUpdateAvatar} />
+                    <EditAvatarPopup
+                        isOpen={isEditAvatarPopupOpen}
+                        onClose={closeAllPopups}
+                        onUpdateAvatar={handleUpdateAvatar} />
 
                     <PopupWithForm //попап удаления карточки
                         title="Вы уверены?"

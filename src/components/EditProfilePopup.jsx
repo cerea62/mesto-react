@@ -6,7 +6,8 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
     const currentUser = useContext(CurrentUserContext);
     const [name, setName] = useState('');
-    const [description, setDescription] = useState('')
+    const [description, setDescription] = useState('');
+    
     function handleNameChange(e) {
         setName(e.target.value)
     }
@@ -19,10 +20,7 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
     }, [currentUser]);
 
     function handleSubmit(e) {
-        // Запрещаем браузеру переходить по адресу формы
         e.preventDefault();
-
-        // Передаём значения управляемых компонентов во внешний обработчик
         onUpdateUser({
             name,
             about: description,
@@ -44,7 +42,7 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
                 name="name"
                 id="name"
                 className="type_name"
-                value={name}
+                value={name||""}
                 onChange={handleNameChange}
             >
             </Input>
@@ -54,7 +52,7 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
                 name="about"
                 id="about"
                 className="type_about"
-                value={description}
+                value={description||""}
                 onChange={handleDescriptionChange}
             >
             </Input>
