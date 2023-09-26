@@ -1,18 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import PopupWithForm from './PopupWithForm';
 import Input from './Input';
 
 
 export default function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
-    const InputRef = useRef();
+    const inputRef = useRef();
     function handleSubmit(e) {
         e.preventDefault();
         onUpdateAvatar({
-            avatar: InputRef.current.value
+            avatar: inputRef.current.value
         });
-        e.target.reset();
-
     }
+    useEffect(() => {
+        inputRef.current.value = "";
+    }, [isOpen]);
     return (
         <PopupWithForm
             title="Обновить аватар"
@@ -23,7 +24,7 @@ export default function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
             onSubmit={handleSubmit}
         >
             <Input
-                ref={InputRef}
+                ref={inputRef}
                 type="url"
                 placeholder="Ссылка на новый аватар"
                 name="avatar"

@@ -1,9 +1,9 @@
 import React from 'react'
 
 export default function PopupWithForm({ name, title, button, children, isOpen, onClose, onSubmit }) {
-  const popupOpened = `${isOpen ? 'popup_opened' : ' '}`;
+  const popupOpenModificatorClass = `${isOpen ? 'popup_opened' : ' '}`;
   return (
-    <div className={`popup popup_type_${name} ${popupOpened}`}>
+    <div className={`popup popup_type_${name} ${popupOpenModificatorClass}`}>
       <div className="popup__container">
         <button type="button"
           className="popup__close"

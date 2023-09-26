@@ -3,8 +3,8 @@ import PopupWithForm from "./PopupWithForm";
 import Input from "./Input";
 
 export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
-    const [place, setPlace] = useState({});
-    const [link, setLink] = useState({});
+    const [place, setPlace] = useState('');
+    const [link, setLink] = useState('');
 
     function handlePlaceChange(evt) {
         setPlace(evt.target.value);
@@ -16,10 +16,15 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
 
     const handleAddPlaceSubmit = (evt) => {
         evt.preventDefault();
-        onAddPlace({ name: place, link });
-        evt.target.reset();
+        onAddPlace({
+            name: place,
+            link
+        });
     }
-
+    useEffect(() => {
+        setPlace('');
+        setLink('')
+    }, [isOpen])
     return (
         <PopupWithForm //попап Новое место
             title="Новое место"
@@ -31,6 +36,7 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
             button="Сохранить"
         >
             <Input
+                value={place}
                 onChange={handlePlaceChange}
                 type="text"
                 placeholder="Название"
@@ -39,6 +45,7 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
                 className="type_place">
             </Input>
             <Input
+                value={link}
                 onChange={handleLinkChange}
                 type="url"
                 placeholder="Ссылка на картинку"

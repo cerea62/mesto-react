@@ -2,44 +2,32 @@ import { useEffect, useState } from "react";
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
-import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 import api from '../utils/Api';
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
-
-import Card from './Card';
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import AddPlacePopup from "./AddPlacePopup";
 
 function App() {
 
     const [cards, setCards] = useState([]);
-    useEffect(() => {
-        handleGetCards();
-    }, []);
-    const handleGetCards = function () {
-        api.getCards()
-            .then((res) => {
-                setCards(res);
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
-
     const [currentUser, setCurrentUser] = useState({});
+    const [selectedCard, setSelectedCard] = useState({});
+    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+
     useEffect(() => {
-        api.getUserInfo()
-            .then((res) => {
-                setCurrentUser(res)
+        Promise.all([api.getUserInfo(), api.getCards()])
+            .then(([profileData, cardData]) => {
+                setCurrentUser(profileData);
+                setCards(cardData);
             })
             .catch((err) => {
                 console.log(err);
             })
     }, [])
-
-    const [selectedCard, setSelectedCard] = useState({});
 
     const handleCardClick = function (card) {
         setSelectedCard(card);
@@ -50,13 +38,16 @@ function App() {
         api.changeLike(card._id, isLiked)
             .then((newCard) => {
                 setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+            })
+            .catch((err) => {
+                console.log(err);
             });
     }
 
     function handleCardDelete(card) {
         api.deleteCard(card._id)
             .then(() => {
-                setCards((state) => state.filter((item) => item !== card))
+                setCards((state) => state.filter((item) => item._id !== card._id))
             })
             .catch((err) => {
                 console.log(err);
@@ -95,24 +86,21 @@ function App() {
     }
 
 
-    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-    const handleEditProfileClick = function () { //открытие попапа Редактирование профиля
+    //открытие попапа Редактирование профиля
+    const handleEditProfileClick = function () {
         setIsEditProfilePopupOpen(true);
     }
 
-    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false); //открытие попапа Редактирование профиля
+    //открытие попапа Редактирование профиля
     const handleAddPlaceClick = function () {
         setIsAddPlacePopupOpen(true);
     }
-    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false); //открытие попапа Редактирование аватара
+    //открытие попапа Редактирование аватара
     const handleEditAvatarClick = function () {
         setIsEditAvatarPopupOpen(true);
     }
-    const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
-    // const handleDeleteCardClick = function () {
-    //     setIsDeleteCardPopupOpen(true);
-    // }
-    const closeAllPopups = function () { //закрытие попапа Редактирование профиля
+    //закрытие попапа Редактирование профиля
+    const closeAllPopups = function () {
         setIsEditProfilePopupOpen(false);
         setIsAddPlacePopupOpen(false);
         setIsEditAvatarPopupOpen(false);
@@ -128,20 +116,10 @@ function App() {
                         onEditProfile={handleEditProfileClick}
                         onAddPlace={handleAddPlaceClick}
                         onEditAvatar={handleEditAvatarClick}
-                        children=
-                        {cards.map((card) => (
-                            <Card
-                                card={card}
-                                key={card._id}
-                                name={card.name}
-                                link={card.link}
-                                likes={card.likes.length}
-                                onCardClick={handleCardClick}
-                                onLikeClick={handleCardLike}
-                                onDeleteCard={handleCardDelete}
-
-                            />
-                        ))}
+                        cards={cards}
+                        onCardClick={handleCardClick}
+                        onLikeClick={handleCardLike}
+                        onDeleteCard={handleCardDelete}
                     />
                     <Footer />
 
@@ -161,14 +139,6 @@ function App() {
                         onClose={closeAllPopups}
                         onUpdateAvatar={handleUpdateAvatar} />
 
-                    <PopupWithForm //попап удаления карточки
-                        title="Вы уверены?"
-                        name="del-card"
-                        isActive={isDeleteCardPopupOpen}
-                        onClose={closeAllPopups}
-                        button="Да"
-                    >
-                    </PopupWithForm>
                     <ImagePopup
                         card={selectedCard}
                         onClose={closeAllPopups}

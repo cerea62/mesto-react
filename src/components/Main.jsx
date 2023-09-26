@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { CurrentUserContext } from '../../src/contexts/CurrentUserContext.js';
+import Card from './Card.jsx';
 
-export default function Main({ onEditProfile, onAddPlace, onEditAvatar, children }) {
+export default function Main({ onEditProfile, onAddPlace, onEditAvatar, cards, onCardClick, onDeleteCard, onLikeClick }) {
     const currentUser = useContext(CurrentUserContext);
 
     return (
@@ -10,8 +11,8 @@ export default function Main({ onEditProfile, onAddPlace, onEditAvatar, children
                 <div className="profile__items">
                     <div className="profile__avatar">
                         <img className="profile__img-avatar"
-                         src={currentUser.avatar}
-                          alt="Аватар автора" />
+                            src={currentUser.avatar}
+                            alt="Аватар автора" />
                         <button type="button" className="profile__edit-avatar"
                             onClick={onEditAvatar}></button>
                     </div>
@@ -19,13 +20,13 @@ export default function Main({ onEditProfile, onAddPlace, onEditAvatar, children
                         <div className="profile__edit">
                             <h1 className="profile__name">
                                 {currentUser.name}
-                                </h1>
+                            </h1>
                             <button type="button" className="profile__edit-button"
                                 onClick={onEditProfile}></button>
                         </div>
                         <p className="profile__caption">
                             {currentUser.about}
-                            </p>
+                        </p>
                     </div>
                 </div>
                 <button type="button" className="profile__add-button"
@@ -35,7 +36,19 @@ export default function Main({ onEditProfile, onAddPlace, onEditAvatar, children
 
             <section className="elements">
                 <ul className="elements__items">
-                    {children}
+                    {cards.map(card => (
+                        <li key={card._id} className="card">
+                            <Card
+                                card={card}
+                                name={card.name}
+                                link={card.link}
+                                likes={card.likes.length}
+                                onCardClick={onCardClick}
+                                onLikeClick={onLikeClick}
+                                onDeleteCard={onDeleteCard}
+                            />
+                        </li>
+                    ))}
                 </ul>
             </section>
 
